@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0a3d6b"/>
+<title>HydroTrack 💧</title>
+<!-- App Icon for home screen -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230077cc'/%3E%3Cpath d='M50 8 C50 8 18 35 18 58 C18 76 32 90 50 90 C68 90 82 76 82 58 C82 35 50 8 50 8Z' fill='rgba(255,255,255,0.2)' stroke='white' stroke-width='2'/%3E%3CclipPath id='dc'%3E%3Cpath d='M50 8 C50 8 18 35 18 58 C18 76 32 90 50 90 C68 90 82 76 82 58 C82 35 50 8 50 8Z'/%3E%3C/clipPath%3E%3Crect x='18' y='55' width='64' height='40' fill='rgba(255,255,255,0.85)' clip-path='url(%23dc)'/%3E%3Cpath d='M18 55 Q27 48 36 55 Q45 62 54 55 Q63 48 72 55 Q77 58 82 55' stroke='white' stroke-width='3' fill='none'/%3E%3C/svg%3E"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230077cc'/%3E%3Cpath d='M50 8 C50 8 18 35 18 58 C18 76 32 90 50 90 C68 90 82 76 82 58 C82 35 50 8 50 8Z' fill='rgba(255,255,255,0.2)' stroke='white' stroke-width='2'/%3E%3CclipPath id='dc'%3E%3Cpath d='M50 8 C50 8 18 35 18 58 C18 76 32 90 50 90 C68 90 82 76 82 58 C82 35 50 8 50 8Z'/%3E%3C/clipPath%3E%3Crect x='18' y='55' width='64' height='40' fill='rgba(255,255,255,0.85)' clip-path='url(%23dc)'/%3E%3Cpath d='M18 55 Q27 48 36 55 Q45 62 54 55 Q63 48 72 55 Q77 58 82 55' stroke='white' stroke-width='3' fill='none'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--me:#00e5a0;--me2:#00b8ff;--sis:#ff6eb4;--sis2:#c44dff;--bg:#0a3d6b;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;width:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#ffffff;-webkit-font-smoothing:antialiased;}
+
+/* BG canvas */
+.bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.bg-scene canvas{width:100%;height:100%;}
+
+/* ── DESKTOP MOBILE FRAME ── */
+@media (min-width: 600px){
+  body{
+    background:#041830;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .bg-scene{display:none;}
+  /* Phone frame wrapper */
+  .phone-frame{
+    position:relative;
+    width:390px;
+    height:844px;
+    border-radius:50px;
+    background:#062444;
+    box-shadow:
+      0 0 0 2px #2a2a3a,
+      0 0 0 6px #1a1a28,
+      0 0 60px rgba(0,180,255,0.3),
+      0 30px 80px rgba(0,0,0,0.8);
+    overflow:hidden;
+    flex-shrink:0;
+  }
+  /* Notch */
+  .phone-frame::before{
+    content:'';
+    position:absolute;
+    top:12px;left:50%;transform:translateX(-50%);
+    width:120px;height:30px;
+    background:#0a0a0f;
+    border-radius:20px;
+    z-index:999;
+  }
+  /* Side buttons */
+  .phone-frame::after{
+    content:'';
+    position:absolute;
+    top:140px;left:-4px;
+    width:4px;height:36px;
+    background:#2a2a3a;
+    border-radius:3px 0 0 3px;
+    box-shadow:0 50px 0 #2a2a3a, 0 96px 0 #2a2a3a;
+  }
+  /* Desktop bg */
+  .desktop-bg{
+    position:fixed;inset:0;z-index:0;
+    background:
+      radial-gradient(ellipse at 30% 40%, rgba(0,120,220,0.3) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 60%, rgba(0,200,255,0.15) 0%, transparent 55%),
+      #041830;
+  }
+  /* Desktop label under phone */
+  .desktop-label{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;
+    color:rgba(255,255,255,0.2);letter-spacing:2px;text-transform:uppercase;
+    z-index:10;white-space:nowrap;
+  }
+  /* Hide desktop label on mobile */
+}
+@media (max-width:599px){
+  .desktop-bg{display:none;}
+  #desktopLabel{display:none;}
+  .phone-frame{
+    border-radius:0!important;
+    box-shadow:none!important;
+    width:100vw!important;
+    height:100vh!important;
+    height:100dvh!important;
+  }
+  .phone-frame::before,.phone-frame::after{display:none!important;}
+}
+  /* Move everything inside phone frame */
+  .app{
+    position:absolute!important;
+    width:390px!important;
+    height:844px!important;
+    max-width:390px!important;
+    overflow:hidden!important;
+  }
+
+  /* Phone frame inner bg */
+  .phone-frame-inner-bg{
+    position:absolute;inset:0;
+    background:linear-gradient(160deg,#0a3d6b 0%,#062e52 100%);
+    z-index:0;
+  }
+}
+
+
+
+/* ── MAIN APP — full screen no scroll ── */
+.app{
+  position:fixed;inset:0;z-index:1;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);
+}
+
+/* Header row */
+.hrow{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 6px;flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-icon{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,#00e5a0,#00b8ff);display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(0,229,160,0.45);flex-shrink:0;}
+.logo-icon svg{width:20px;height:24px;}
+.logo-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;letter-spacing:-0.5px;color:#ffffff;}
+.logo-tag{font-size:9px;color:rgba(255,255,255,0.38);letter-spacing:1px;text-transform:uppercase;}
+.streak{background:rgba(255,255,255,0.4);border:1px solid rgba(0,80,160,0.25);border-radius:12px;padding:5px 11px;text-align:center;}
+.streak-n{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;color:var(--me);line-height:1;}
+.streak-l{font-size:8px;color:rgba(180,220,255,0.7);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+
+/* Sync bar */
+.sync-bar{display:flex;align-items:center;gap:7px;margin:0 14px 6px;padding:7px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;flex-shrink:0;}
+.sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sync-dot.synced{background:var(--me);box-shadow:0 0 6px rgba(0,229,160,0.7);}
+.sync-dot.syncing{background:#ffcc00;animation:blink 1s infinite;}
+.sync-dot.error{background:#ff4444;}
+.sync-dot.offline{background:rgba(255,255,255,0.25);}
+.sync-text{font-size:10px;font-weight:600;color:rgba(180,220,255,0.8);flex:1;}
+.sync-time{font-size:9px;color:rgba(180,220,255,0.5);}
+.sync-refresh{font-size:14px;color:var(--me);background:none;border:none;cursor:pointer;padding:0 3px;line-height:1;}
+
+/* Profile row */
+.prow{display:flex;gap:7px;margin:0 14px 6px;align-items:stretch;flex-shrink:0;}
+.prof-wrap{display:flex;gap:6px;flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:3px;}
+.prof-btn{flex:1;padding:9px 4px;border-radius:11px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.25s cubic-bezier(0.34,1.3,0.64,1);display:flex;align-items:center;justify-content:center;gap:6px;color:rgba(255,255,255,0.4);background:transparent;}
+.prof-btn.on-me{background:linear-gradient(135deg,#00e5a0,#00b8ff);color:#06090f;box-shadow:0 4px 16px rgba(0,229,160,0.5);transform:scale(1.03);}
+.prof-btn.on-sis{background:linear-gradient(135deg,#ff6eb4,#c44dff);color:#fff;box-shadow:0 4px 16px rgba(255,110,180,0.5);transform:scale(1.03);}
+.av{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;}
+.av-me{background:rgba(0,229,160,0.2);color:var(--me);}
+.av-sis{background:rgba(255,110,180,0.2);color:var(--sis);}
+.cloud-btn{flex-shrink:0;width:64px;background:linear-gradient(135deg,#0077cc,#00b4e6);border:none;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:800;color:#fff;letter-spacing:0.8px;text-transform:uppercase;padding:7px 4px;box-shadow:0 4px 14px rgba(0,119,204,0.4);transition:all 0.2s;}
+.cloud-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,119,204,0.55);}
+.cloud-btn:active{transform:scale(0.94);}
+.cloud-btn svg{width:18px;height:18px;}
+.cloud-btn.saving{animation:savePulse 0.8s infinite;}
+@keyframes savePulse{0%,100%{box-shadow:0 4px 14px rgba(0,119,204,0.4);}50%{box-shadow:0 4px 22px rgba(0,119,204,0.8);}}
+
+/* Day tabs */
+.tabs-sec{padding:0 14px 4px;flex-shrink:0;}
+.tabs-lbl{font-size:9px;font-weight:700;color:rgba(180,220,255,0.7);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
+.tabs-scroll{overflow-x:auto;scrollbar-width:none;margin:0 -14px;padding:2px 14px 4px;}
+.tabs-scroll::-webkit-scrollbar{display:none;}
+.tabs-row{display:flex;gap:5px;width:max-content;}
+.dtab{width:36px;height:36px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.11);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.55);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.18s;flex-shrink:0;position:relative;}
+.dtab.act-me{background:linear-gradient(135deg,#00e5a0,#00b8ff);border-color:var(--me);color:#06090f;box-shadow:0 3px 14px rgba(0,229,160,0.55);}
+.dtab.act-sis{background:linear-gradient(135deg,#ff6eb4,#c44dff);border-color:var(--sis);color:#fff;box-shadow:0 3px 14px rgba(255,110,180,0.55);}
+.dtab.dot-me::after,.dtab.dot-sis::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;}
+.dtab.dot-me::after{background:var(--me);}
+.dtab.dot-sis::after{background:var(--sis);}
+.dtab.gme{background:rgba(0,229,160,0.14);border-color:rgba(0,229,160,0.38);color:var(--me);}
+.dtab.gsis{background:rgba(255,110,180,0.12);border-color:rgba(255,110,180,0.34);color:var(--sis);}
+.dtab.tring{box-shadow:0 0 0 2px rgba(255,255,255,0.3);}
+
+/* ── MAIN CONTENT AREA ── */
+.main-area{
+  flex:1;display:flex;gap:10px;
+  padding:0 14px 8px;
+  overflow:hidden;
+  min-height:0;
+}
+
+/* LEFT — character + ring */
+.left-col{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:6px;flex-shrink:0;
+  width:140px;
+}
+
+/* Water character */
+.char-wrap{position:relative;width:100px;height:145px;flex-shrink:0;}
+.char-svg{width:100%;height:100%;}
+
+/* Ring */
+.ring-wrap{position:relative;width:90px;height:90px;flex-shrink:0;}
+.ring-svg{width:100%;height:100%;transform:rotate(-90deg);}
+.ring-bg-c{fill:none;stroke:rgba(255,255,255,0.08);stroke-width:8;}
+.ring-track{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 0.7s cubic-bezier(0.4,0,0.2,1);}
+.ring-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.rn{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;line-height:1;letter-spacing:-1px;color:#ffffff;}
+.ro{font-size:10px;font-weight:600;color:rgba(180,220,255,0.7);margin-top:2px;}
+.rp{font-size:11px;font-weight:800;margin-top:3px;font-family:'Plus Jakarta Sans',sans-serif;}
+.rp-me{color:var(--me);}
+.rp-sis{color:var(--sis);}
+
+/* RIGHT — controls */
+.right-col{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;overflow:hidden;}
+
+/* Day info */
+.day-info{display:flex;align-items:center;justify-content:space-between;}
+.day-n{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;color:#ffffff;}
+.day-d{font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);}
+.today-pill{border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;display:none;font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;}
+.pill-me{background:rgba(0,229,160,0.17);border:1px solid rgba(0,229,160,0.38);color:var(--me);}
+.pill-sis{background:rgba(255,110,180,0.17);border:1px solid rgba(255,110,180,0.38);color:var(--sis);}
+.goal-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;}
+.chip-me{background:rgba(0,229,160,0.11);border:1px solid rgba(0,229,160,0.28);color:var(--me);}
+.chip-sis{background:rgba(255,110,180,0.11);border:1px solid rgba(255,110,180,0.28);color:var(--sis);}
+
+/* Glass strip */
+.glass-strip{display:flex;gap:6px;flex-wrap:wrap;}
+.gi{width:26px;height:34px;}
+
+/* Add buttons */
+.add-lbl{font-size:9px;font-weight:700;color:rgba(180,220,255,0.7);letter-spacing:1.5px;text-transform:uppercase;}
+.add-row{display:flex;gap:7px;}
+.ab{flex:1;padding:11px 3px;border-radius:14px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.22s cubic-bezier(0.34,1.4,0.64,1);text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.ab .ic{width:22px;height:22px;}
+.ab:active{transform:scale(0.92)!important;}
+.ab:hover{transform:translateY(-2px) scale(1.04);}
+.me-q{background:linear-gradient(160deg,#00e5a0,#00d4b0);color:#06090f;box-shadow:0 6px 20px rgba(0,229,160,0.6);}
+.me-h{background:linear-gradient(160deg,#00b8ff,#0055ff);color:#fff;box-shadow:0 6px 20px rgba(0,184,255,0.6);}
+.me-f{background:linear-gradient(160deg,#39ff14,#00e5a0);color:#06090f;box-shadow:0 6px 22px rgba(57,255,20,0.55);}
+.sis-q{background:linear-gradient(160deg,#ff6eb4,#ff2d7a);color:#fff;box-shadow:0 6px 20px rgba(255,110,180,0.6);}
+.sis-h{background:linear-gradient(160deg,#c44dff,#7700ff);color:#fff;box-shadow:0 6px 20px rgba(196,77,255,0.6);}
+.sis-f{background:linear-gradient(160deg,#ff4ddb,#c44dff);color:#fff;box-shadow:0 6px 22px rgba(255,77,219,0.55);}
+
+.act-row{display:flex;gap:7px;}
+.actb{flex:1;padding:9px 0;border-radius:11px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
+.actb:active{transform:scale(0.96);}
+
+.cg-box{border-radius:12px;padding:8px 12px;text-align:center;display:none;animation:popIn 0.45s cubic-bezier(0.34,1.56,0.64,1);}
+.cg-me{background:linear-gradient(135deg,rgba(0,229,160,0.14),rgba(0,184,255,0.11));border:1px solid rgba(0,229,160,0.32);}
+.cg-sis{background:linear-gradient(135deg,rgba(255,110,180,0.14),rgba(196,77,255,0.11));border:1px solid rgba(255,110,180,0.32);}
+.cg-t{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:800;}
+.cgt-me{color:var(--me);}
+.cgt-sis{color:var(--sis);}
+.cg-s{font-size:11px;font-weight:500;color:rgba(255,255,255,0.55);margin-top:2px;}
+
+/* Bottom stats */
+.bottom-row{display:flex;gap:8px;padding:0 14px 8px;flex-shrink:0;}
+.stat{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:8px 6px;text-align:center;}
+.sv{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;color:#0a3a6e;line-height:1;}
+.sl{font-size:8px;font-weight:700;color:rgba(180,220,255,0.65);margin-top:3px;letter-spacing:0.8px;text-transform:uppercase;}
+
+/* Month bar */
+.mcard{margin:0 14px 8px;background:rgba(255,255,255,0.055);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:10px 14px;flex-shrink:0;}
+.mt{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.mtl{font-size:9px;font-weight:700;color:rgba(180,220,255,0.7);letter-spacing:1px;text-transform:uppercase;}
+.mtv{font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:800;}
+.mvm{color:#00e5ff;}
+.mvs{color:#ff6eb4;}
+.mtrack{display:flex;gap:2px;}
+.ms{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,0.08);transition:background 0.3s;}
+.ms-me{background:linear-gradient(90deg,#00e5a0,#00b8ff);}
+.ms-sis{background:linear-gradient(90deg,#ff6eb4,#c44dff);}
+.ms-pm{background:rgba(0,229,160,0.26);}
+.ms-ps{background:rgba(255,110,180,0.24);}
+
+/* Drink animation overlay */
+.drink-anim{position:fixed;inset:0;z-index:300;pointer-events:none;display:flex;align-items:center;justify-content:center;}
+.drink-char{opacity:0;transform:scale(0.5);transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.drink-char.show{opacity:1;transform:scale(1);}
+.drink-char.hide{opacity:0;transform:scale(0.3) translateY(-30px);transition:all 0.4s ease-in;}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:800;padding:10px 20px;border-radius:40px;z-index:400;transition:transform 0.35s cubic-bezier(0.34,1.4,0.64,1),opacity 0.3s;opacity:0;white-space:nowrap;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.green{background:linear-gradient(135deg,#00e5a0,#00b8ff);color:#06090f;box-shadow:0 6px 24px rgba(0,229,160,0.5);}
+.toast.red{background:linear-gradient(135deg,#ff4444,#ff8800);color:#fff;}
+
+@keyframes popIn{from{opacity:0;transform:scale(0.75);}to{opacity:1;transform:scale(1);}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.35;}}
+@keyframes sweatFall{0%{transform:translateY(0);opacity:0.8;}100%{transform:translateY(8px);opacity:0;}}
+#eyeL,#eyeR{transition:transform 0.1s;}
+#sweatDrops ellipse{animation:sweatFall 1.6s ease-in infinite;}
+#sweatDrops ellipse:nth-child(2){animation-delay:0.7s;}
+</style>
+</head>
+<body>
+<!-- Desktop background -->
+<div class="desktop-bg"></div>
+<div class="bg-scene"><canvas id="bgC"></canvas></div>
+
+<!-- Desktop label -->
+<div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;color:rgba(180,220,255,0.4);letter-spacing:2px;text-transform:uppercase;z-index:10;white-space:nowrap;pointer-events:none;" id="desktopLabel">HydroTrack &bull; Mobile Preview</div>
+
+<!-- Phone frame (shows as mobile on desktop) -->
+<div class="phone-frame" id="phoneFrame">
+<div class="phone-frame-inner-bg"></div>
+
+
+<!-- MAIN APP -->
+<div class="app" id="mainApp">
+
+  <!-- Header -->
+  <div class="hrow">
+    <div class="logo">
+      <div class="logo-icon" style="background:linear-gradient(135deg,#0077cc,#00b4e6);box-shadow:0 0 18px rgba(0,140,220,0.5);">
+        <svg viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id="dropClip">
+              <path d="M14 2 C14 2 4 12 4 20 C4 26.6 8.5 31 14 31 C19.5 31 24 26.6 24 20 C24 12 14 2 14 2 Z"/>
+            </clipPath>
+          </defs>
+          <!-- Water drop shape -->
+          <path d="M14 2 C14 2 4 12 4 20 C4 26.6 8.5 31 14 31 C19.5 31 24 26.6 24 20 C24 12 14 2 14 2 Z"
+            fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.9)" stroke-width="1.2"/>
+          <!-- Water fill inside drop -->
+          <rect x="4" y="18" width="20" height="14" fill="rgba(255,255,255,0.75)" clip-path="url(#dropClip)"/>
+          <!-- Wave on water surface -->
+          <path d="M4 18 Q7 15.5 10 18 Q13 20.5 16 18 Q19 15.5 22 18 Q23 18.5 24 18" stroke="rgba(255,255,255,0.9)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <!-- Shine highlight -->
+          <ellipse cx="9" cy="12" rx="2.5" ry="4" fill="rgba(255,255,255,0.35)" transform="rotate(-20 9 12)"/>
+          <!-- Small bubble -->
+          <circle cx="18" cy="22" r="1.5" fill="rgba(255,255,255,0.5)"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-name">HydroTrack</div>
+        <div class="logo-tag" id="monthTag">Loading...</div>
+      </div>
+    </div>
+    <div class="streak"><div class="streak-n" id="sNum">0</div><div class="streak-l">Streak</div></div>
+  </div>
+
+  <!-- Sync -->
+  <div class="sync-bar">
+    <div class="sync-dot offline" id="syncDot"></div>
+    <span class="sync-text" id="syncText">Ready</span>
+    <span class="sync-time" id="syncTime"></span>
+    <button class="sync-refresh" onclick="manualSync()">↻</button>
+  </div>
+
+  <!-- Profile + Sync btn -->
+  <div class="prow">
+    <div class="prof-wrap">
+      <button class="prof-btn on-me" id="btnMe" onclick="sw('me')"><div class="av av-me">Me</div>Me</button>
+      <button class="prof-btn" id="btnSis" onclick="sw('sis')"><div class="av av-sis">S</div>Sister</button>
+    </div>
+    <button class="cloud-btn" id="saveBtn" onclick="saveToCloud()">
+      <svg viewBox="0 0 20 20" fill="none">
+        <path d="M10 2v9m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4 13v3a1 1 0 001 1h10a1 1 0 001-1v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Save
+    </button>
+  </div>
+
+  <!-- Day tabs -->
+  <div class="tabs-sec">
+    <div class="tabs-lbl">Day</div>
+    <div class="tabs-scroll"><div class="tabs-row" id="tabs"></div></div>
+  </div>
+
+  <!-- Main area: character + controls -->
+  <div class="main-area">
+
+    <!-- Left: water character + ring -->
+    <div class="left-col">
+      <!-- Water body character -->
+      <div class="char-wrap" id="charWrap">
+        <svg class="char-svg" id="charSvg" viewBox="0 0 100 145" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id="bodyClip"><rect x="24" y="68" width="52" height="56" rx="10"/></clipPath>
+            <clipPath id="bodyClipF"><path d="M22 90 Q20 115 18 138 L82 138 Q80 115 78 90 Z"/></clipPath>
+            <clipPath id="headClip"><ellipse cx="50" cy="35" rx="20" ry="22"/></clipPath>
+            <clipPath id="glassClip"><path d="M68 50 L70 63 Q70 65 72 65 L82 65 Q84 65 84 63 L86 50 Z"/></clipPath>
+            <clipPath id="glassClipF"><path d="M68 46 L70 59 Q70 61 72 61 L82 61 Q84 61 84 59 L86 46 Z"/></clipPath>
+            <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00e5a0" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#00b8ff" stop-opacity="0.9"/>
+            </linearGradient>
+            <linearGradient id="waterGradSis" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ff6eb4" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#c44dff" stop-opacity="0.9"/>
+            </linearGradient>
+            <linearGradient id="skinMe" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fde8c8"/><stop offset="100%" stop-color="#f5c99a"/></linearGradient>
+            <linearGradient id="skinSis" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff0e8"/><stop offset="100%" stop-color="#ffd8c8"/></linearGradient>
+            <linearGradient id="shirtMe" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a90d9"/><stop offset="100%" stop-color="#2c6bb5"/></linearGradient>
+            <linearGradient id="shirtSis" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f06292"/><stop offset="100%" stop-color="#e91e8c"/></linearGradient>
+            <linearGradient id="pantsMe" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2c3e6b"/><stop offset="100%" stop-color="#1a2a4a"/></linearGradient>
+            <linearGradient id="skirtSis" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f48fb1"/><stop offset="100%" stop-color="#f06292"/></linearGradient>
+          </defs>
+
+          <!-- MALE (Me) — visible by default -->
+          <g id="maleChar">
+            <!-- Shadow under feet -->
+            <ellipse cx="50" cy="142" rx="22" ry="3" fill="rgba(0,0,0,0.15)"/>
+            <!-- LEFT SHOE — detailed with sole and toe -->
+            <rect x="28" y="130" width="18" height="8" rx="3" fill="#1c1c1c"/>
+            <rect x="27" y="134" width="20" height="4" rx="2" fill="#111"/>
+            <ellipse cx="46" cy="130" rx="3" ry="2.5" fill="#2a2a2a"/>
+            <!-- RIGHT SHOE -->
+            <rect x="54" y="130" width="18" height="8" rx="3" fill="#1c1c1c"/>
+            <rect x="53" y="134" width="20" height="4" rx="2" fill="#111"/>
+            <ellipse cx="54" cy="130" rx="3" ry="2.5" fill="#2a2a2a"/>
+            <!-- PANTS — realistic with crease lines -->
+            <rect x="31" y="108" width="16" height="24" rx="5" fill="#1e2d4e"/>
+            <rect x="53" y="108" width="16" height="24" rx="5" fill="#1e2d4e"/>
+            <!-- crease lines on pants -->
+            <line x1="39" y1="110" x2="38" y2="130" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+            <line x1="61" y1="110" x2="62" y2="130" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+            <!-- BELT -->
+            <rect x="28" y="106" width="44" height="6" rx="2.5" fill="#0d1626"/>
+            <rect x="44" y="107" width="12" height="4" rx="1.5" fill="#c89a00"/>
+            <rect x="48" y="107.5" width="4" height="3" rx="0.8" fill="#a07800"/>
+            <!-- SHIRT — collared dress shirt with buttons -->
+            <rect x="24" y="66" width="52" height="45" rx="8" fill="#2c5fa3"/>
+            <!-- shirt shading -->
+            <rect x="24" y="66" width="26" height="45" rx="8" fill="rgba(0,0,0,0.06)"/>
+            <!-- shirt collar left -->
+            <path d="M44 66 L46 78 L50 72" fill="#f5f0e8" stroke="#ddd" stroke-width="0.5"/>
+            <!-- shirt collar right -->
+            <path d="M56 66 L54 78 L50 72" fill="#f5f0e8" stroke="#ddd" stroke-width="0.5"/>
+            <!-- shirt buttons -->
+            <circle cx="50" cy="80" r="1.2" fill="rgba(255,255,255,0.5)"/>
+            <circle cx="50" cy="86" r="1.2" fill="rgba(255,255,255,0.5)"/>
+            <circle cx="50" cy="92" r="1.2" fill="rgba(255,255,255,0.5)"/>
+            <!-- shirt pocket -->
+            <rect x="27" y="74" width="10" height="8" rx="1.5" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="0.6"/>
+            <!-- water fill in shirt -->
+            <rect id="bodyWater" x="24" y="111" width="52" height="0" fill="url(#waterGrad)" clip-path="url(#bodyClip)" style="transition:y 0.8s cubic-bezier(0.4,0,0.2,1),height 0.8s cubic-bezier(0.4,0,0.2,1)"/>
+            <path id="bodyWave" d="" fill="rgba(255,255,255,0.35)"/>
+            <text id="bodyPctText" x="50" y="93" text-anchor="middle" font-family="Syne,sans-serif" font-size="10" font-weight="800" fill="rgba(255,255,255,0.95)" display="none">0%</text>
+            <!-- LEFT ARM — realistic with hand -->
+            <rect x="8" y="68" width="16" height="28" rx="7" fill="#2c5fa3"/>
+            <!-- forearm skin -->
+            <rect x="9" y="85" width="14" height="14" rx="5" fill="url(#skinMe)"/>
+            <!-- LEFT HAND -->
+            <ellipse cx="16" cy="100" rx="6" ry="5" fill="url(#skinMe)"/>
+            <rect x="11" y="96" width="4" height="7" rx="2" fill="url(#skinMe)"/>
+            <rect x="15" y="95" width="4" height="8" rx="2" fill="url(#skinMe)"/>
+            <rect x="19" y="96" width="3.5" height="7" rx="2" fill="url(#skinMe)"/>
+            <!-- RIGHT ARM group -->
+            <g id="armRGroup" style="transform-origin:78px 74px; transition:transform 0.35s cubic-bezier(0.34,1.2,0.64,1);">
+              <rect x="76" y="68" width="16" height="28" rx="7" fill="#2c5fa3"/>
+              <rect x="77" y="85" width="14" height="14" rx="5" fill="url(#skinMe)"/>
+              <!-- RIGHT HAND -->
+              <ellipse cx="84" cy="100" rx="6" ry="5" fill="url(#skinMe)"/>
+              <rect x="79" y="96" width="3.5" height="7" rx="2" fill="url(#skinMe)"/>
+              <rect x="82.5" y="95" width="4" height="8" rx="2" fill="url(#skinMe)"/>
+              <rect x="86.5" y="96" width="4" height="7" rx="2" fill="url(#skinMe)"/>
+              <!-- Glass in right hand -->
+              <g id="drinkGlass" opacity="0" style="transition:opacity 0.25s;">
+                <path d="M70 52 L72 67 Q72 69 74 69 L84 69 Q86 69 86 67 L88 52 Z" fill="rgba(220,245,255,0.88)" stroke="rgba(100,200,255,0.8)" stroke-width="1"/>
+                <clipPath id="glassClip"><path d="M70 52 L72 67 Q72 69 74 69 L84 69 Q86 69 86 67 L88 52 Z"/></clipPath>
+                <rect id="glassWater" x="70" y="69" width="20" height="0" fill="#00b8ff" opacity="0.9" clip-path="url(#glassClip)" style="transition:y 0.3s,height 0.3s;"/>
+                <!-- glass shine -->
+                <line x1="73" y1="54" x2="73" y2="65" stroke="rgba(255,255,255,0.5)" stroke-width="1" stroke-linecap="round"/>
+              </g>
+            </g>
+            <!-- NECK -->
+            <rect x="45" y="54" width="10" height="14" rx="4" fill="url(#skinMe)"/>
+            <!-- HEAD -->
+            <ellipse cx="50" cy="33" rx="20" ry="22" fill="url(#skinMe)" stroke="rgba(0,0,0,0.05)" stroke-width="0.5"/>
+            <rect id="headWater" x="30" y="55" width="40" height="0" fill="url(#waterGrad)" clip-path="url(#headClip)" style="transition:y 0.8s cubic-bezier(0.4,0,0.2,1),height 0.8s cubic-bezier(0.4,0,0.2,1)"/>
+            <!-- HAIR — styled with volume and layers -->
+            <!-- back of hair -->
+            <ellipse cx="50" cy="13" rx="21" ry="12" fill="#1a0d04"/>
+            <!-- side hair left -->
+            <ellipse cx="31" cy="22" rx="6" ry="12" fill="#1a0d04"/>
+            <!-- side hair right -->
+            <ellipse cx="69" cy="22" rx="6" ry="12" fill="#1a0d04"/>
+            <!-- top hair -->
+            <ellipse cx="50" cy="11" rx="19" ry="10" fill="#2c1508"/>
+            <!-- hair highlight -->
+            <path d="M36 10 Q46 6 58 9" stroke="rgba(255,190,120,0.25)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M40 8 Q50 4 60 7" stroke="rgba(255,190,120,0.15)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <!-- hair texture lines -->
+            <path d="M32 20 Q36 12 44 10" stroke="rgba(0,0,0,0.3)" stroke-width="0.8" fill="none"/>
+            <path d="M68 20 Q64 12 56 10" stroke="rgba(0,0,0,0.3)" stroke-width="0.8" fill="none"/>
+            <!-- EARS -->
+            <ellipse cx="30" cy="34" rx="4" ry="5" fill="url(#skinMe)"/>
+            <ellipse cx="70" cy="34" rx="4" ry="5" fill="url(#skinMe)"/>
+            <ellipse cx="30" cy="34" rx="2.5" ry="3.5" fill="rgba(200,140,100,0.3)"/>
+            <ellipse cx="70" cy="34" rx="2.5" ry="3.5" fill="rgba(200,140,100,0.3)"/>
+            <!-- EYEBROWS — thick and natural -->
+            <path d="M36 22 Q41 20 47 21.5" stroke="#1a0d04" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M53 21.5 Q59 20 64 22" stroke="#1a0d04" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <!-- EYES -->
+            <g id="eyeL" style="transform-origin:42px 30px; transition:transform 0.1s;">
+              <ellipse cx="42" cy="30" rx="5.5" ry="5.5" fill="white"/>
+              <ellipse cx="42" cy="30" rx="5.5" ry="5.5" fill="rgba(0,0,0,0.03)"/>
+              <circle cx="43" cy="31" r="3.5" fill="#3d2010"/>
+              <circle cx="43" cy="31" r="2" fill="#1a0a04"/>
+              <circle cx="44.2" cy="29.5" r="1.3" fill="white"/>
+              <!-- upper eyelid line -->
+              <path d="M37 28 Q42 25.5 47 28" stroke="#1a0d04" stroke-width="1" fill="none" stroke-linecap="round"/>
+            </g>
+            <g id="eyeR" style="transform-origin:58px 30px; transition:transform 0.1s;">
+              <ellipse cx="58" cy="30" rx="5.5" ry="5.5" fill="white"/>
+              <circle cx="59" cy="31" r="3.5" fill="#3d2010"/>
+              <circle cx="59" cy="31" r="2" fill="#1a0a04"/>
+              <circle cx="60.2" cy="29.5" r="1.3" fill="white"/>
+              <path d="M53 28 Q58 25.5 63 28" stroke="#1a0d04" stroke-width="1" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- NOSE -->
+            <path d="M47 36 Q48 40 50 41 Q52 40 53 36" stroke="rgba(160,100,60,0.5)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+            <circle cx="47.5" cy="40" r="1.2" fill="rgba(160,100,60,0.25)"/>
+            <circle cx="52.5" cy="40" r="1.2" fill="rgba(160,100,60,0.25)"/>
+            <!-- MOUTH -->
+            <path id="charSmile" d="M43 46 Q50 44 57 46" stroke="#c07848" stroke-width="1.8" stroke-linecap="round" fill="none" style="transition:d 0.4s;"/>
+            <!-- lips -->
+            <path d="M44.5 46 Q50 44.5 55.5 46" stroke="rgba(180,100,60,0.4)" stroke-width="0.8" fill="none"/>
+            <!-- CHEEKS -->
+            <ellipse id="cheekL" cx="34" cy="39" rx="5" ry="3.5" fill="rgba(255,150,130,0)" style="transition:fill 0.5s;"/>
+            <ellipse id="cheekR" cx="66" cy="39" rx="5" ry="3.5" fill="rgba(255,150,130,0)" style="transition:fill 0.5s;"/>
+            <!-- SWEAT DROPS -->
+            <g id="sweatDrops">
+              <ellipse cx="72" cy="17" rx="2.5" ry="4" fill="rgba(100,200,255,0.7)"/>
+              <ellipse cx="78" cy="11" rx="2" ry="3" fill="rgba(100,200,255,0.5)"/>
+            </g>
+          </g>
+
+          <!-- FEMALE (Sister) — hidden by default -->
+          <g id="femaleChar" display="none">
+            <!-- Shadow -->
+            <ellipse cx="50" cy="143" rx="22" ry="3" fill="rgba(0,0,0,0.12)"/>
+            <!-- WHITE SHOES — pointed toe heels -->
+            <ellipse cx="40" cy="137" rx="10" ry="4" fill="#f5f5f5"/>
+            <path d="M30 137 Q35 133 44 136 L44 140 Q37 140 30 138 Z" fill="#e8e8e8"/>
+            <ellipse cx="60" cy="137" rx="10" ry="4" fill="#f5f5f5"/>
+            <path d="M70 137 Q65 133 56 136 L56 140 Q63 140 70 138 Z" fill="#e8e8e8"/>
+            <!-- heel -->
+            <rect x="37" y="137" width="3" height="5" rx="1" fill="#ddd"/>
+            <rect x="60" y="137" width="3" height="5" rx="1" fill="#ddd"/>
+            <!-- LEGS (slightly visible under frock) -->
+            <rect x="36" y="118" width="10" height="20" rx="4" fill="url(#skinSis)"/>
+            <rect x="54" y="118" width="10" height="20" rx="4" fill="url(#skinSis)"/>
+            <!-- WHITE FULL FROCK — realistic with layers -->
+            <!-- frock base -->
+            <path d="M22 90 Q20 115 18 138 L82 138 Q80 115 78 90 Z" fill="#f8f8f8"/>
+            <!-- frock center line -->
+            <line x1="50" y1="90" x2="50" y2="138" stroke="rgba(0,0,0,0.05)" stroke-width="0.5"/>
+            <!-- frock fabric folds -->
+            <path d="M22 90 Q28 110 26 138" stroke="rgba(0,0,0,0.06)" stroke-width="0.8" fill="none"/>
+            <path d="M78 90 Q72 110 74 138" stroke="rgba(0,0,0,0.06)" stroke-width="0.8" fill="none"/>
+            <path d="M35 90 Q33 115 32 138" stroke="rgba(0,0,0,0.04)" stroke-width="0.6" fill="none"/>
+            <path d="M65 90 Q67 115 68 138" stroke="rgba(0,0,0,0.04)" stroke-width="0.6" fill="none"/>
+            <!-- frock hem lace -->
+            <path d="M18 136 Q30 132 42 136 Q50 138 58 136 Q70 132 82 136" stroke="rgba(200,200,200,0.8)" stroke-width="1.5" fill="none"/>
+            <!-- frock top / bodice -->
+            <rect x="30" y="66" width="40" height="28" rx="8" fill="#f8f8f8"/>
+            <!-- bodice details — lace neckline -->
+            <path d="M38 66 Q50 74 62 66" stroke="#e0e0e0" stroke-width="1.5" fill="none"/>
+            <path d="M38 66 Q42 70 50 68 Q58 70 62 66" stroke="#ddd" stroke-width="0.8" fill="rgba(255,255,255,0.5)"/>
+            <!-- ribbon/bow at waist -->
+            <ellipse cx="50" cy="94" rx="12" ry="4" fill="#f0f0f0" stroke="#ddd" stroke-width="0.5"/>
+            <ellipse cx="43" cy="93" rx="5" ry="3" fill="white" stroke="#ddd" stroke-width="0.5"/>
+            <ellipse cx="57" cy="93" rx="5" ry="3" fill="white" stroke="#ddd" stroke-width="0.5"/>
+            <circle cx="50" cy="93" r="2.5" fill="#e8e8e8" stroke="#ddd" stroke-width="0.5"/>
+            <!-- water fill in frock -->
+            <rect id="bodyWaterF" x="22" y="138" width="60" height="0" fill="url(#waterGradSis)" clip-path="url(#bodyClipF)" style="transition:y 0.8s cubic-bezier(0.4,0,0.2,1),height 0.8s cubic-bezier(0.4,0,0.2,1)"/>
+            <path id="bodyWaveF" d="" fill="rgba(255,255,255,0.4)"/>
+            <text id="bodyPctTextF" x="50" y="115" text-anchor="middle" font-family="Syne,sans-serif" font-size="10" font-weight="800" fill="rgba(255,255,255,0.95)" display="none">0%</text>
+            <!-- LEFT ARM -->
+            <rect x="10" y="68" width="20" height="26" rx="8" fill="#f8f8f8"/>
+            <rect x="11" y="84" width="18" height="14" rx="6" fill="url(#skinSis)"/>
+            <!-- LEFT HAND -->
+            <ellipse cx="20" cy="99" rx="6" ry="5" fill="url(#skinSis)"/>
+            <rect x="15" y="95" width="3.5" height="7" rx="2" fill="url(#skinSis)"/>
+            <rect x="18.5" y="94" width="3.5" height="8" rx="2" fill="url(#skinSis)"/>
+            <rect x="22" y="95" width="3" height="7" rx="2" fill="url(#skinSis)"/>
+            <!-- RIGHT ARM group -->
+            <g id="armRGroupF" style="transform-origin:78px 73px; transition:transform 0.35s cubic-bezier(0.34,1.2,0.64,1);">
+              <rect x="70" y="68" width="20" height="26" rx="8" fill="#f8f8f8"/>
+              <rect x="71" y="84" width="18" height="14" rx="6" fill="url(#skinSis)"/>
+              <!-- RIGHT HAND -->
+              <ellipse cx="80" cy="99" rx="6" ry="5" fill="url(#skinSis)"/>
+              <rect x="75" y="95" width="3.5" height="7" rx="2" fill="url(#skinSis)"/>
+              <rect x="78.5" y="94" width="3.5" height="8" rx="2" fill="url(#skinSis)"/>
+              <rect x="82" y="95" width="3" height="7" rx="2" fill="url(#skinSis)"/>
+              <!-- Glass -->
+              <g id="drinkGlassF" opacity="0" style="transition:opacity 0.25s;">
+                <path d="M70 50 L72 65 Q72 67 74 67 L84 67 Q86 67 86 65 L88 50 Z" fill="rgba(220,245,255,0.88)" stroke="rgba(100,200,255,0.8)" stroke-width="1"/>
+                <clipPath id="glassClipF"><path d="M70 50 L72 65 Q72 67 74 67 L84 67 Q86 67 86 65 L88 50 Z"/></clipPath>
+                <rect id="glassWaterF" x="70" y="67" width="20" height="0" fill="#00b8ff" opacity="0.9" clip-path="url(#glassClipF)" style="transition:y 0.3s,height 0.3s;"/>
+                <line x1="73" y1="52" x2="73" y2="63" stroke="rgba(255,255,255,0.5)" stroke-width="1" stroke-linecap="round"/>
+              </g>
+            </g>
+            <!-- NECK -->
+            <rect x="45" y="52" width="10" height="15" rx="4" fill="url(#skinSis)"/>
+            <!-- HEAD -->
+            <ellipse cx="50" cy="31" rx="20" ry="22" fill="url(#skinSis)" stroke="rgba(0,0,0,0.04)" stroke-width="0.5"/>
+            <rect id="headWaterF" x="30" y="53" width="40" height="0" fill="url(#waterGradSis)" clip-path="url(#headClip)" style="transition:y 0.8s cubic-bezier(0.4,0,0.2,1),height 0.8s cubic-bezier(0.4,0,0.2,1)"/>
+            <!-- HAIR AT BACK ONLY — long flowing behind head -->
+            <!-- back hair volume (behind head) -->
+            <ellipse cx="50" cy="28" rx="24" ry="25" fill="#5a2d0c"/>
+            <!-- side hair falling behind -->
+            <path d="M27 20 Q22 40 24 65 Q26 75 28 80" stroke="#5a2d0c" stroke-width="9" fill="none" stroke-linecap="round"/>
+            <path d="M73 20 Q78 40 76 65 Q74 75 72 80" stroke="#5a2d0c" stroke-width="9" fill="none" stroke-linecap="round"/>
+            <!-- main hair body down the back -->
+            <path d="M28 22 Q24 50 26 72 Q28 82 32 86" stroke="#4a2208" stroke-width="12" fill="none" stroke-linecap="round"/>
+            <path d="M72 22 Q76 50 74 72 Q72 82 68 86" stroke="#4a2208" stroke-width="12" fill="none" stroke-linecap="round"/>
+            <!-- hair highlights -->
+            <path d="M30 25 Q27 50 29 68" stroke="rgba(180,120,60,0.25)" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M70 25 Q73 50 71 68" stroke="rgba(180,120,60,0.25)" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <!-- top of head hair (only at top, clean face) -->
+            <ellipse cx="50" cy="10" rx="20" ry="11" fill="#5a2d0c"/>
+            <!-- parting line -->
+            <line x1="50" y1="3" x2="50" y2="18" stroke="rgba(0,0,0,0.2)" stroke-width="0.8"/>
+            <!-- HAIR BAND — decorative -->
+            <ellipse cx="50" cy="18" rx="22" ry="6" fill="none" stroke="#e91e8c" stroke-width="3"/>
+            <!-- hair band bow -->
+            <ellipse cx="66" cy="16" rx="5" ry="3.5" fill="#e91e8c"/>
+            <ellipse cx="74" cy="16" rx="5" ry="3.5" fill="#ff4db3"/>
+            <circle cx="70" cy="16" r="2.5" fill="#c2185b"/>
+            <!-- hair band dots decoration -->
+            <circle cx="35" cy="18" r="1.2" fill="#ff4db3" opacity="0.7"/>
+            <circle cx="42" cy="16" r="1" fill="#ff4db3" opacity="0.6"/>
+            <!-- EARS -->
+            <ellipse cx="30" cy="32" rx="4" ry="5" fill="url(#skinSis)" stroke="rgba(220,170,160,0.3)" stroke-width="0.5"/>
+            <ellipse cx="70" cy="32" rx="4" ry="5" fill="url(#skinSis)"/>
+            <!-- EARRINGS — small pearls -->
+            <circle cx="30" cy="38" r="2.5" fill="white" stroke="#ddd" stroke-width="0.5"/>
+            <circle cx="70" cy="38" r="2.5" fill="white" stroke="#ddd" stroke-width="0.5"/>
+            <!-- EYEBROWS — arched and thin -->
+            <path d="M37 20 Q41 17.5 47 19.5" stroke="#3d1a05" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <path d="M53 19.5 Q59 17.5 63 20" stroke="#3d1a05" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+            <!-- EYES with lashes -->
+            <g id="eyeLF" style="transform-origin:42px 28px; transition:transform 0.1s;">
+              <ellipse cx="42" cy="28" rx="5.5" ry="5.5" fill="white"/>
+              <circle cx="43" cy="29" r="3.5" fill="#6b3a2a"/>
+              <circle cx="43" cy="29" r="2" fill="#3d1a05"/>
+              <circle cx="44.2" cy="27.5" r="1.3" fill="white"/>
+              <!-- upper lashes -->
+              <path d="M37 25 L36 22 M39 24 L38 21 M41 24 L41 21 M43 24 L44 21 M46 25 L47 22" stroke="#1a0d04" stroke-width="1.1" stroke-linecap="round"/>
+              <!-- upper lid -->
+              <path d="M37 26 Q42 23 47 26" stroke="#1a0d04" stroke-width="1" fill="none" stroke-linecap="round"/>
+            </g>
+            <g id="eyeRF" style="transform-origin:58px 28px; transition:transform 0.1s;">
+              <ellipse cx="58" cy="28" rx="5.5" ry="5.5" fill="white"/>
+              <circle cx="59" cy="29" r="3.5" fill="#6b3a2a"/>
+              <circle cx="59" cy="29" r="2" fill="#3d1a05"/>
+              <circle cx="60.2" cy="27.5" r="1.3" fill="white"/>
+              <path d="M53 25 L52 22 M55 24 L54 21 M57 24 L57 21 M59 24 L60 21 M62 25 L63 22" stroke="#1a0d04" stroke-width="1.1" stroke-linecap="round"/>
+              <path d="M53 26 Q58 23 63 26" stroke="#1a0d04" stroke-width="1" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- NOSE -->
+            <path d="M48 35 Q49 38.5 50 39.5 Q51 38.5 52 35" stroke="rgba(200,140,130,0.4)" stroke-width="1" fill="none" stroke-linecap="round"/>
+            <!-- LIPS — full with lip gloss -->
+            <path d="M43 44 Q46 41.5 50 42 Q54 41.5 57 44" fill="rgba(233,30,140,0.8)" stroke="rgba(193,0,100,0.6)" stroke-width="0.5"/>
+            <path id="charSmileF" d="M43 44 Q50 48 57 44" stroke="rgba(193,0,100,0.7)" stroke-width="1.6" stroke-linecap="round" fill="rgba(233,30,140,0.4)" style="transition:d 0.4s;"/>
+            <path d="M45 43 Q50 41.5 55 43" stroke="rgba(255,150,200,0.5)" stroke-width="0.8" fill="none"/>
+            <!-- CHEEKS -->
+            <ellipse id="cheekLF" cx="34" cy="38" rx="5.5" ry="3.5" fill="rgba(255,150,150,0.3)" style="transition:fill 0.5s;"/>
+            <ellipse id="cheekRF" cx="66" cy="38" rx="5.5" ry="3.5" fill="rgba(255,150,150,0.3)" style="transition:fill 0.5s;"/>
+            <!-- SWEAT DROPS -->
+            <g id="sweatDropsF">
+              <ellipse cx="73" cy="15" rx="2.5" ry="4" fill="rgba(100,200,255,0.65)"/>
+              <ellipse cx="79" cy="9" rx="2" ry="3" fill="rgba(100,200,255,0.45)"/>
+            </g>
+          </g>
+
+                    <!-- Shared: drops and ripples -->
+          <circle id="drop1" cx="78" cy="66" r="2" fill="#00e5a0" opacity="0"/>
+          <circle id="drop2" cx="73" cy="70" r="1.5" fill="#00b8ff" opacity="0"/>
+          <circle id="drop3" cx="83" cy="68" r="1.5" fill="#00e5a0" opacity="0"/>
+          <circle id="rip1" cx="50" cy="118" r="0" fill="none" stroke="rgba(0,229,160,0.5)" stroke-width="1.2" opacity="0"/>
+          <circle id="rip2" cx="50" cy="118" r="0" fill="none" stroke="rgba(0,184,255,0.3)" stroke-width="1" opacity="0"/>
+        </svg>
+      </div>
+
+      <!-- Ring counter -->
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 90 90">
+          <defs>
+            <linearGradient id="gM" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00e5a0"/><stop offset="100%" stop-color="#00b8ff"/></linearGradient>
+            <linearGradient id="gS" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ff6eb4"/><stop offset="100%" stop-color="#c44dff"/></linearGradient>
+            <filter id="gf"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <circle class="ring-bg-c" cx="45" cy="45" r="37"/>
+          <circle class="ring-track" id="rFill" cx="45" cy="45" r="37" stroke-dasharray="232.48" stroke-dashoffset="232.48" stroke="url(#gM)" filter="url(#gf)"/>
+        </svg>
+        <div class="ring-mid">
+          <div class="rn" id="rNum">0</div>
+          <div class="ro" id="rOf">of 5</div>
+          <div class="rp rp-me" id="rPct">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: day info + buttons -->
+    <div class="right-col">
+      <div class="day-info">
+        <div>
+          <div class="day-n" id="dName">Loading...</div>
+          <div class="day-d" id="dDate"></div>
+        </div>
+        <div class="today-pill pill-me" id="tPill">Today</div>
+      </div>
+      <div class="goal-chip chip-me" id="gChip">Goal: 5 glasses</div>
+
+      <!-- Glass strip -->
+      <div class="glass-strip" id="gStrip"></div>
+
+      <!-- Add buttons -->
+      <div class="add-lbl">Add Water</div>
+      <div class="add-row" id="addRow">
+        <button class="ab me-q" onclick="addW(0.25)">
+          <svg class="ic" viewBox="0 0 28 36" fill="none"><path d="M3 2 L5 33 Q5 35 7 35 L21 35 Q23 35 23 33 L25 2 Z" fill="rgba(0,0,0,0.2)" stroke="rgba(0,0,0,0.45)" stroke-width="1.2"/><clipPath id="qC"><path d="M3 2 L5 33 Q5 35 7 35 L21 35 Q23 35 23 33 L25 2 Z"/></clipPath><rect x="3" y="26.5" width="25" height="9" fill="rgba(0,0,0,0.55)" clip-path="url(#qC)"/><ellipse cx="14" cy="28" rx="4" ry="1.1" fill="rgba(255,255,255,0.3)" clip-path="url(#qC)"/></svg>
+          ¼
+        </button>
+        <button class="ab me-h" onclick="addW(0.5)">
+          <svg class="ic" viewBox="0 0 28 36" fill="none"><path d="M3 2 L5 33 Q5 35 7 35 L21 35 Q23 35 23 33 L25 2 Z" fill="rgba(0,0,0,0.15)" stroke="rgba(0,60,120,0.55)" stroke-width="1.2"/><clipPath id="hC"><path d="M3 2 L5 33 Q5 35 7 35 L21 35 Q23 35 23 33 L25 2 Z"/></clipPath><rect x="3" y="18" width="25" height="18" fill="rgba(255,255,255,0.5)" clip-path="url(#hC)"/><ellipse cx="14" cy="19.5" rx="5" ry="1.4" fill="rgba(255,255,255,0.38)" clip-path="url(#hC)"/></svg>
+          ½
+        </button>
+        <button class="ab me-f" onclick="addW(1)">
+          <svg class="ic" viewBox="0 0 28 36" fill="none"><path d="M3 2 L5 33 Q5 35 7 35 L21 35 Q23 35 23 33 L25 2 Z" fill="rgba(0,0,0,0.15)" stroke="rgba(0,0,0,0.5)" stroke-width="1.2"/><clipPath id="fC"><path d="M3 2 L5 33 Q5 35 7 35 L21 35 Q23 35 23 33 L25 2 Z"/></clipPath><rect x="3" y="2" width="25" height="34" fill="rgba(0,0,0,0.5)" clip-path="url(#fC)"/><ellipse cx="14" cy="5" rx="6" ry="1.6" fill="rgba(255,255,255,0.42)" clip-path="url(#fC)"/><ellipse cx="9" cy="10" rx="2.5" ry="0.8" fill="rgba(255,255,255,0.22)" clip-path="url(#fC)"/></svg>
+          Full
+        </button>
+      </div>
+
+      <div class="act-row">
+        <button class="actb" onclick="undoW()">↩ Undo</button>
+        <button class="actb" onclick="rstDay()">🗑 Reset</button>
+      </div>
+
+      <div class="cg-box cg-me" id="cgBox">
+        <div class="cg-t cgt-me" id="cgT">🎉 Goal Crushed!</div>
+        <div class="cg-s" id="cgS">Amazing!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom stats -->
+  <div class="bottom-row">
+    <div class="stat"><div class="sv" id="stL">0</div><div class="sl">Logged</div></div>
+    <div class="stat"><div class="sv" id="stG">0</div><div class="sl">Goals Hit</div></div>
+    <div class="stat"><div class="sv" id="stA">0</div><div class="sl">Avg/Day</div></div>
+  </div>
+
+  <!-- Month bar -->
+  <div class="mcard">
+    <div class="mt"><span class="mtl">Monthly Progress</span><span class="mtv mvm" id="mVal">0 / 30</span></div>
+    <div class="mtrack" id="mTrack"></div>
+  </div>
+
+</div>
+
+<!-- Drink animation overlay -->
+<div class="drink-anim" id="drinkAnim">
+  <div class="drink-char" id="drinkChar">
+    <!-- Big animated character drinking -->
+    <svg width="120" height="150" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg" id="drinkBigSvg">
+      <ellipse cx="50" cy="85" rx="28" ry="35" fill="rgba(0,229,160,0.15)" stroke="rgba(0,229,160,0.6)" stroke-width="2"/>
+      <rect id="dbWater" x="22" y="120" width="56" height="0" fill="url(#waterGrad)" clip-path="url(#bodyClip2)" style="transition:y 0.8s,height 0.8s;"/>
+      <clipPath id="bodyClip2"><ellipse cx="50" cy="85" rx="28" ry="35"/></clipPath>
+      <text id="dbPct" x="50" y="90" text-anchor="middle" font-family="Syne,sans-serif" font-size="14" font-weight="800" fill="rgba(255,255,255,0.95)">0%</text>
+      <ellipse cx="20" cy="75" rx="7" ry="14" fill="rgba(0,229,160,0.1)" stroke="rgba(0,229,160,0.4)" stroke-width="1.5" style="animation:sip 0.6s ease-in-out;"/>
+      <!-- Right arm raised holding glass -->
+      <g style="transform-origin:80px 70px;animation:sip 0.6s ease-in-out;">
+        <ellipse cx="80" cy="70" rx="7" ry="14" fill="rgba(0,229,160,0.1)" stroke="rgba(0,229,160,0.4)" stroke-width="1.5"/>
+        <path d="M74 55 L76 70 Q76 72 78 72 L86 72 Q88 72 88 70 L90 55 Z" fill="rgba(200,230,255,0.7)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+        <clipPath id="gc2"><path d="M74 55 L76 70 Q76 72 78 72 L86 72 Q88 72 88 70 L90 55 Z"/></clipPath>
+        <rect x="74" y="62" width="18" height="12" fill="#00b8ff" opacity="0.85" clip-path="url(#gc2)"/>
+      </g>
+      <circle cx="50" cy="38" r="22" fill="rgba(0,229,160,0.1)" stroke="rgba(0,229,160,0.4)" stroke-width="2"/>
+      <circle cx="43" cy="34" r="4" fill="rgba(255,255,255,0.9)"/>
+      <circle cx="57" cy="34" r="4" fill="rgba(255,255,255,0.9)"/>
+      <circle cx="44" cy="35" r="2" fill="#1a3a6e"/>
+      <circle cx="58" cy="35" r="2" fill="#1a3a6e"/>
+      <!-- Happy smile -->
+      <path d="M40 44 Q50 52 60 44" stroke="rgba(0,229,160,0.9)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+      <ellipse cx="40" cy="43" rx="3" ry="2" fill="rgba(255,150,150,0.4)"/>
+      <ellipse cx="60" cy="43" rx="3" ry="2" fill="rgba(255,150,150,0.4)"/>
+    </svg>
+  </div>
+</div>
+
+<div class="toast green" id="toast"></div>
+
+</div><!-- /phone-frame -->
+
+<script>
+// ══ GOOGLE SHEETS URL — permanently set, no login needed on any device ══
+const SHEET_URL='https://script.google.com/macros/s/AKfycbwlp_4gL1Wdhne_c2wbQkKXj9wuVZWpVsCkYRjkv3OYiEMGyc5QnKubz6-3ZxDzuYS-/exec';
+
+/* PARTICLE BG */
+(function(){
+  const cv=document.getElementById('bgC'),ctx=cv.getContext('2d');
+  let W,H;
+  const pts=Array.from({length:45},()=>({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.0002,vy:(Math.random()-.5)*.0002,r:Math.random()*1.5+.3,a:Math.random()}));
+  function sz(){
+    const isDesktop=window.innerWidth>=600;
+    W=cv.width=isDesktop?390:window.innerWidth;
+    H=cv.height=isDesktop?844:window.innerHeight;
+  }
+  sz();window.addEventListener('resize',()=>{sz();});
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    const g=ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,'#0a3d6b');g.addColorStop(.5,'#083460');g.addColorStop(1,'#0a3d6b');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    [[.8,.15,260,'rgba(0,180,255,0.18)'],[.1,.7,280,'rgba(0,120,200,0.15)'],[.5,.5,200,'rgba(0,229,160,0.08)']].forEach(([rx,ry,r,c])=>{
+      const gr=ctx.createRadialGradient(rx*W,ry*H,0,rx*W,ry*H,r);
+      gr.addColorStop(0,c);gr.addColorStop(1,'transparent');
+      ctx.fillStyle=gr;ctx.beginPath();ctx.arc(rx*W,ry*H,r,0,Math.PI*2);ctx.fill();
+    });
+    const isSis=window._prof==='sis';
+    pts.forEach(p=>{
+      p.x=(p.x+p.vx+1)%1;p.y=(p.y+p.vy+1)%1;
+      ctx.beginPath();ctx.arc(p.x*W,p.y*H,p.r,0,Math.PI*2);
+      ctx.fillStyle=isSis?`rgba(255,100,180,${.08+p.a*.12})`:`rgba(0,200,255,${.08+p.a*.12})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+
+/* CONSTANTS */
+const DAYS=30,CIRC=2*Math.PI*37;
+const PR={me:{goal:5,gt:"5 glasses — amazing!"},sis:{goal:3,gt:"3 glasses — great job sis!"}};
+const LS={start:'ht7_start',me:'ht7_me',sis:'ht7_sis'};
+
+/* STATE */
+window._prof='me';
+let DATA={me:{},sis:{}};
+let _syncT=null,aDay=1,memOpen=false;
+
+/* SETUP */
+
+
+
+/* BOOT */
+function pad(n){return String(n).padStart(2,'0');}
+function todayISO(){const t=new Date();return t.getFullYear()+'-'+pad(t.getMonth()+1)+'-'+pad(t.getDate());}
+
+function bootApp(){
+
+  // Set cycle start to yesterday if not already set (first run)
+  if(!window._cycleStart){
+    const y=new Date();y.setDate(y.getDate()-1);
+    window._cycleStart=y.getFullYear()+'-'+pad(y.getMonth()+1)+'-'+pad(y.getDate());
+  }
+  initCycle();loadLocal();aDay=todayNum();
+  render(); // Render immediately so buttons work right away
+  setSS('synced','Ready');
+  // Load from cloud in background — doesn't block anything
+  setTimeout(()=>gsLoad(),500);
+  
+}
+
+/* CYCLE */
+function initCycle(){
+  
+  checkReset();
+  const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const s=cycleStart();
+  document.getElementById('monthTag').textContent=mn[s.getMonth()]+' '+s.getFullYear();
+}
+function cycleStart(){
+  // Use stored start date from cloud data, or fall back to calculated
+  if(window._cycleStart) return new Date(window._cycleStart);
+  // Default: yesterday (user said they started yesterday)
+  const d=new Date(); d.setDate(d.getDate()-1);
+  window._cycleStart=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  return d;
+}
+function todayNum(){const d=Math.floor((new Date()-cycleStart())/86400000)+1;return Math.min(Math.max(d,1),DAYS);}
+function checkReset(){if(Math.floor((new Date()-cycleStart())/86400000)>=DAYS)doReset();}
+function doReset(){DATA={me:{},sis:{}};gsSave(true);}
+
+/* LOCAL */
+function loadLocal(){
+  try{const m=localStorage.getItem(LS.me);if(m)DATA.me=JSON.parse(m)||{};const s=localStorage.getItem(LS.sis);if(s)DATA.sis=JSON.parse(s)||{};}
+  catch(e){DATA={me:{},sis:{}};}
+}
+function saveLocal(){try{localStorage.setItem(LS.me,JSON.stringify(DATA.me));localStorage.setItem(LS.sis,JSON.stringify(DATA.sis));}catch(e){}}
+
+/* GOOGLE SHEETS */
+function setSS(state,text){document.getElementById('syncDot').className='sync-dot '+state;document.getElementById('syncText').textContent=text;}
+function setST(){const n=new Date();document.getElementById('syncTime').textContent=n.getHours()+':'+pad(n.getMinutes());}
+function jsonpFetch(url){
+  return new Promise((resolve,reject)=>{
+    const cb='cb'+Date.now();
+    const s=document.createElement('script');
+    const t=setTimeout(()=>{
+      delete window[cb];s.remove();
+      reject(new Error('timeout'));
+    },12000);
+    window[cb]=function(data){
+      clearTimeout(t);delete window[cb];s.remove();
+      resolve(data);
+    };
+    s.src=url+'&callback='+cb;
+    s.onerror=()=>{clearTimeout(t);delete window[cb];s.remove();reject(new Error('script error'));};
+    document.head.appendChild(s);
+  });
+}
+
+function imgPing(url){
+  return new Promise((resolve)=>{
+    const img=new Image();
+    img.onload=img.onerror=()=>resolve();
+    img.src=url+'&t='+Date.now();
+  });
+}
+
+async function gsLoad(){
+  setSS('syncing','Loading...');
+  try{
+    const data=await jsonpFetch(SHEET_URL+'?action=load&t='+Date.now());
+    if(data&&(data.me||data.sis||data.start)){
+      if(data.me)DATA.me=data.me;
+      if(data.sis)DATA.sis=data.sis;
+      if(data.start)window._cycleStart=data.start;
+      checkReset();aDay=todayNum();render();
+      setSS('synced','Loaded ✓');setST();
+      showToast('Data loaded!','green');
+    } else {
+      setSS('synced','Ready');
+      showToast('Ready — start tracking!','green');
+    }
+  }catch(e){
+    setSS('offline','Offline — data will sync later');
+    console.log('gsLoad failed:',e.message);
+  }
+}
+async function gsSave(now){
+  if(!now){clearTimeout(_syncT);_syncT=setTimeout(()=>gsSave(true),2500);setSS('syncing','Saving...');return;}
+  const startStr=window._cycleStart||todayISO();
+  const encoded=encodeURIComponent(JSON.stringify({me:DATA.me,sis:DATA.sis,start:startStr}));
+  const saveUrl=SHEET_URL+'?action=save&data='+encoded;
+  // Try JSONP first (bypasses CORS, gets response)
+  try{
+    const result=await jsonpFetch(saveUrl+'&t='+Date.now());
+    setSS('synced','Saved ✓');setST();return;
+  }catch(e1){}
+  // Fallback: image ping (fire and forget — no CORS, no response)
+  try{
+    await imgPing(saveUrl);
+    setSS('synced','Saved ✓');setST();return;
+  }catch(e2){}
+  setSS('error','Save failed — retrying');
+  setTimeout(()=>gsSave(true),8000);
+}
+async function manualSync(){
+  
+  setSS('syncing','Syncing...');await gsSave(true);
+}
+
+async function saveToCloud(){
+  const btn=document.getElementById('saveBtn');
+  if(!btn)return;
+  btn.classList.add('saving');
+  if(_url==='offline'){
+    showToast('Saved on this device!','green');
+    btn.classList.remove('saving');
+    return;
+  }
+  setSS('syncing','Saving...');
+  await gsSave(true);
+  btn.classList.remove('saving');
+  // Show tick on button briefly
+  const origHTML=btn.innerHTML;
+  btn.innerHTML='<svg viewBox="0 0 20 20" fill="none" style="width:18px;height:18px;"><path d="M4 10l5 5 7-7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font-size:9px;font-weight:800;letter-spacing:0.8px;">Saved</span>';
+  setTimeout(()=>{btn.innerHTML=origHTML;},1800);
+}
+
+/* DATA OPS */
+function gv(d){return DATA[window._prof]['d'+d]||0;}
+function sv(d,v){DATA[window._prof]['d'+d]=Math.max(0,Math.round(v*4)/4);gsSave(false);}
+
+function addW(a){
+  sv(aDay,gv(aDay)+a);
+  playDrinkAnim(gv(aDay));
+  render();
+}
+function undoW(){sv(aDay,gv(aDay)-.25);render();}
+function rstDay(){sv(aDay,0);render();}
+function selDay(d){aDay=d;render();}
+function sw(p){
+  window._prof=p;
+  document.getElementById('btnMe').className='prof-btn'+(p==='me'?' on-me':'');
+  document.getElementById('btnSis').className='prof-btn'+(p==='sis'?' on-sis':'');
+  const male=document.getElementById('maleChar');
+  const female=document.getElementById('femaleChar');
+  if(male)male.setAttribute('display',p==='me'?'block':'none');
+  if(female)female.setAttribute('display',p==='sis'?'block':'none');
+  render();if(typeof memOpen!=='undefined'&&memOpen)renderMem();
+}
+
+/* WATER CHARACTER UPDATE */
+function updateCharacter(glasses,goal){
+  const pct=Math.min(glasses/goal,1);
+  const pctPc=Math.round(pct*100);
+  const isMe=window._prof==='me';
+  const gradFill=isMe?'url(#waterGrad)':'url(#waterGradSis)';
+
+  // Pick IDs based on gender
+  const suffix=isMe?'':'F';
+  const bwId='bodyWater'+suffix;
+  const wvId='bodyWave'+suffix;
+  const btId='bodyPctText'+suffix;
+  const hwId='headWater'+suffix;
+  const smId=isMe?'charSmile':'charSmileF';
+  const ckL=isMe?'cheekL':'cheekLF';
+  const ckR=isMe?'cheekR':'cheekRF';
+  const swId=isMe?'sweatDrops':'sweatDropsF';
+
+  // Body fill — different ranges for male (shirt) vs female (frock)
+  const bodyMaxH=isMe?50:50;
+  const bodyBaseY=isMe?118:138;
+  const bodyH=Math.round(pct*bodyMaxH);
+  const bodyY=bodyBaseY-bodyH;
+  const bw=document.getElementById(bwId);
+  if(bw){bw.setAttribute('y',bodyY);bw.setAttribute('height',bodyH);bw.setAttribute('fill',gradFill);}
+
+  // Wave
+  const wv=document.getElementById(wvId);
+  if(wv){
+    if(bodyH>2){
+      wv.setAttribute('d',`M${isMe?24:18} ${bodyY} Q${isMe?33:30} ${bodyY-3} ${isMe?42:42} ${bodyY} Q${isMe?50:50} ${bodyY+3} ${isMe?58:58} ${bodyY} Q${isMe?67:70} ${bodyY-3} ${isMe?76:82} ${bodyY} L${isMe?76:82} ${bodyY+bodyH} L${isMe?24:18} ${bodyY+bodyH} Z`);
+    } else {
+      wv.setAttribute('d','');
+    }
+  }
+
+  // % text
+  const bt=document.getElementById(btId);
+  if(bt){
+    if(bodyH>16){bt.setAttribute('display','block');bt.textContent=pctPc+'%';bt.setAttribute('y',String(bodyY+bodyH/2+4));}
+    else bt.setAttribute('display','none');
+  }
+
+  // Head fill — male head cy=33, female cy=31
+  const headBaseY=isMe?55:53;
+  const headMaxH=44;
+  const headH=Math.round(pct*headMaxH);
+  const headY=headBaseY-headH;
+  const hw=document.getElementById(hwId);
+  if(hw){hw.setAttribute('y',headY);hw.setAttribute('height',headH);hw.setAttribute('fill',gradFill);}
+
+  // Mouth/smile
+  const smile=document.getElementById(smId);
+  if(smile){
+    if(pctPc>=100){
+      smile.setAttribute('d',isMe?'M39 44 Q50 54 61 44':'M40 43 Q50 52 60 43');
+      smile.setAttribute('stroke',isMe?'rgba(176,96,48,0.9)':'rgba(233,30,140,0.9)');
+    } else if(pctPc>=60){
+      smile.setAttribute('d',isMe?'M41 44 Q50 51 59 44':'M42 44 Q50 50 58 44');
+      smile.setAttribute('stroke',isMe?'rgba(176,96,48,0.8)':'rgba(233,30,140,0.8)');
+    } else if(pctPc>=20){
+      smile.setAttribute('d',isMe?'M43 44 Q50 48 57 44':'M44 44 Q50 48 56 44');
+      smile.setAttribute('stroke',isMe?'rgba(176,96,48,0.6)':'rgba(233,30,140,0.6)');
+    } else {
+      smile.setAttribute('d',isMe?'M43 46 Q50 44 57 46':'M44 46 Q50 44 56 46');
+      smile.setAttribute('stroke',isMe?'rgba(176,96,48,0.4)':'rgba(233,30,140,0.4)');
+    }
+  }
+
+  // Cheeks
+  const ckLEl=document.getElementById(ckL);const ckREl=document.getElementById(ckR);
+  if(pctPc>=60){
+    if(ckLEl)ckLEl.setAttribute('fill','rgba(255,150,150,0.45)');
+    if(ckREl)ckREl.setAttribute('fill','rgba(255,150,150,0.45)');
+  } else {
+    if(ckLEl)ckLEl.setAttribute('fill',isMe?'rgba(255,150,150,0)':'rgba(255,150,150,0.25)');
+    if(ckREl)ckREl.setAttribute('fill',isMe?'rgba(255,150,150,0)':'rgba(255,150,150,0.25)');
+  }
+
+  // Sweat
+  const sw=document.getElementById(swId);
+  if(sw)sw.setAttribute('opacity',pctPc===0?'1':pctPc<20?'0.6':'0');
+}
+
+/* DRINK ANIMATION — arm tilts, glass empties, drops fall, ripple */
+let drinkAnimTimeout=null;
+let blinkInterval=null;
+function playDrinkAnim(glasses){
+  const goal=PR[window._prof].goal;
+  updateCharacter(glasses,goal);
+  const isMe=window._prof==='me';
+  const armId=isMe?'armRGroup':'armRGroupF';
+  const glId=isMe?'drinkGlass':'drinkGlassF';
+  const gwId=isMe?'glassWater':'glassWaterF';
+  const arm=document.getElementById(armId);
+  const gl=document.getElementById(glId);
+  const gw=document.getElementById(gwId);
+  if(!arm||!gl||!gw)return;
+
+  // Fill glass with water first
+  gl.setAttribute('opacity','1');
+  gw.setAttribute('y',isMe?'57':'55');gw.setAttribute('height','12');
+  gw.setAttribute('fill','#00b8ff');
+
+  // Tilt arm up — drinking motion
+  arm.style.transform='rotate(-30deg)';
+
+  // After short delay, glass empties (water drunk)
+  setTimeout(()=>{
+    gw.setAttribute('y','64');gw.setAttribute('height','2');
+    // Show drops
+    showDrops(isMe);
+    // Ripple at bottom of body
+    animRipple(isMe);
+  },280);
+
+  // Arm returns
+  clearTimeout(drinkAnimTimeout);
+  drinkAnimTimeout=setTimeout(()=>{
+    if(arm){arm.style.transform='rotate(0deg)';}
+    setTimeout(()=>{if(gl)gl.setAttribute('opacity','0');},300);
+  },900);
+
+  // Happy blink
+  blinkOnce();
+}
+
+function showDrops(isMe){
+  const color=isMe?'#00b8ff':'#ff6eb4';
+  ['drop1','drop2','drop3'].forEach((id,i)=>{
+    const d=document.getElementById(id);
+    d.setAttribute('fill',color);d.setAttribute('opacity','0.9');
+    let t=0;
+    const iv=setInterval(()=>{
+      t++;
+      const cy=parseInt(d.getAttribute('cy')||68)+1.5;
+      d.setAttribute('cy',String(cy));
+      d.setAttribute('opacity',String(Math.max(0,0.9-t*0.12)));
+      if(t>8||cy>82){d.setAttribute('opacity','0');d.setAttribute('cy',id==='drop1'?'68':id==='drop2'?'72':'70');clearInterval(iv);}
+    },40+i*20);
+  });
+}
+
+function animRipple(isMe){
+  const color=isMe?'rgba(0,180,255,0.6)':'rgba(255,110,180,0.6)';
+  const color2=isMe?'rgba(0,229,160,0.35)':'rgba(196,77,255,0.3)';
+  ['rip1','rip2'].forEach((id,i)=>{
+    const r=document.getElementById(id);
+    r.setAttribute('stroke',i===0?color:color2);
+    r.setAttribute('r','2');r.setAttribute('opacity','0.8');
+    let t=0;
+    const iv=setInterval(()=>{
+      t++;
+      r.setAttribute('r',String(2+t*1.8));
+      r.setAttribute('opacity',String(Math.max(0,0.8-t*0.07)));
+      if(t>14){r.setAttribute('opacity','0');r.setAttribute('r','0');clearInterval(iv);}
+    },35+i*15);
+  });
+}
+
+function blinkOnce(){
+  const eyeIds=window._prof==='me'?['eyeL','eyeR']:['eyeLF','eyeRF'];
+  eyeIds.forEach(id=>{
+    const g=document.getElementById(id);
+    if(!g)return;
+    g.style.transform='scaleY(0.1)';
+    setTimeout(()=>{g.style.transform='scaleY(1)';},120);
+  });
+}
+
+/* RENDER */
+function dDate(d){const dt=new Date(cycleStart());dt.setDate(dt.getDate()+d-1);return dt;}
+function fn(n){return n%1===0?String(n):parseFloat(n.toFixed(2)).toString();}
+function gSVG(fp,color,uid){
+  const fh=Math.round(fp*28/100),y=30-fh;
+  return '<svg viewBox="0 0 28 32" fill="none"><path d="M3 2 L5 29 Q5 31 7 31 L21 31 Q23 31 23 29 L25 2 Z" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/><clipPath id="'+uid+'"><path d="M3 2 L5 29 Q5 31 7 31 L21 31 Q23 31 23 29 L25 2 Z"/></clipPath><rect x="3" y="'+y+'" width="25" height="'+fh+'" fill="'+color+'" opacity="0.9" clip-path="url(#'+uid+')"/></svg>';
+}
+
+function renderTabs(){
+  const row=document.getElementById('tabs');row.innerHTML='';
+  const isMe=window._prof==='me',goal=PR[window._prof].goal,td=todayNum();
+  for(let d=1;d<=DAYS;d++){
+    const b=document.createElement('button');b.className='dtab';b.textContent=d;
+    const g=gv(d);
+    if(d===aDay)b.classList.add(isMe?'act-me':'act-sis');
+    if(d===td)b.classList.add('tring');
+    if(g>0&&g<goal&&d!==aDay)b.classList.add(isMe?'dot-me':'dot-sis');
+    if(g>=goal&&d!==aDay)b.classList.add(isMe?'gme':'gsis');
+    b.onclick=()=>selDay(d);row.appendChild(b);
+  }
+  const ab=row.children[aDay-1];
+  if(ab)setTimeout(()=>ab.scrollIntoView({inline:'center',behavior:'smooth',block:'nearest'}),60);
+}
+
+function renderGlasses(g){
+  const row=document.getElementById('gStrip');row.innerHTML='';
+  const goal=PR[window._prof].goal,isMe=window._prof==='me';
+  for(let i=0;i<Math.min(Math.max(Math.ceil(g),goal),goal+2);i++){
+    let f=0;if(i<Math.floor(g))f=100;else if(i===Math.floor(g))f=Math.round((g-Math.floor(g))*100);
+    const ex=i>=goal;
+    let fc='rgba(255,255,255,0.04)';
+    if(f>0){if(ex)fc='#FAC775';else if(isMe)fc=f===100?'#00e5a0':'rgba(0,229,160,0.55)';else fc=f===100?'#ff6eb4':'rgba(255,110,180,0.55)';}
+    const uid='gs'+i+'_'+Math.random().toString(36).slice(2,6);
+    const dv=document.createElement('div');dv.className='gi';dv.innerHTML=gSVG(f,fc,uid);row.appendChild(dv);
+  }
+}
+
+function render(){
+  const isMe=window._prof==='me',goal=PR[window._prof].goal,td=todayNum();
+  renderTabs();
+  const g=gv(aDay),dt=dDate(aDay);
+  const DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('dName').textContent=DN[dt.getDay()];
+  document.getElementById('dDate').textContent=dt.getDate()+' '+MN[dt.getMonth()];
+  const tp=document.getElementById('tPill');tp.style.display=aDay===td?'block':'none';tp.className='today-pill '+(isMe?'pill-me':'pill-sis');
+  const gc=document.getElementById('gChip');gc.className='goal-chip '+(isMe?'chip-me':'chip-sis');gc.textContent='Goal: '+goal;
+  const pct=Math.min(g/goal,1);
+  document.getElementById('rFill').style.strokeDashoffset=CIRC*(1-pct);
+  document.getElementById('rFill').setAttribute('stroke','url(#'+(isMe?'gM':'gS')+')');
+  document.getElementById('rNum').textContent=fn(g);
+  document.getElementById('rOf').textContent='of '+goal;
+  const rp=document.getElementById('rPct');rp.textContent=Math.round(pct*100)+'%';rp.className='rp '+(isMe?'rp-me':'rp-sis');
+  renderGlasses(g);
+  updateCharacter(g,goal);
+  const ar=document.getElementById('addRow');
+  ar.children[0].className='ab '+(isMe?'me-q':'sis-q');
+  ar.children[1].className='ab '+(isMe?'me-h':'sis-h');
+  ar.children[2].className='ab '+(isMe?'me-f':'sis-f');
+  const cb=document.getElementById('cgBox');cb.style.display=g>=goal?'block':'none';cb.className='cg-box '+(isMe?'cg-me':'cg-sis');
+  document.getElementById('cgT').className='cg-t '+(isMe?'cgt-me':'cgt-sis');document.getElementById('cgS').textContent=PR[window._prof].gt;
+  let lg=0,gd=0,tot=0;
+  for(let d=1;d<=DAYS;d++){const v=gv(d);if(v>0){lg++;tot+=v;}if(v>=goal)gd++;}
+  document.getElementById('stL').textContent=lg;document.getElementById('stG').textContent=gd;document.getElementById('stA').textContent=lg>0?parseFloat((tot/lg).toFixed(1)):0;
+  let streak=0;for(let d=td;d>=1;d--){if(gv(d)>=goal)streak++;else break;}document.getElementById('sNum').textContent=streak;
+  const tr=document.getElementById('mTrack');tr.innerHTML='';let hit=0;
+  for(let d=1;d<=DAYS;d++){const v=gv(d);const s=document.createElement('div');s.className='ms';if(v>=goal){s.classList.add(isMe?'ms-me':'ms-sis');hit++;}else if(v>0)s.classList.add(isMe?'ms-pm':'ms-ps');tr.appendChild(s);}
+  document.getElementById('mVal').textContent=hit+' / 30';document.getElementById('mVal').className='mtv '+(isMe?'mvm':'mvs');
+}
+
+function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),2200);}
+
+/* INIT */
+// URL is pre-configured — skip setup screen always
+
+bootApp();
+</script>
+</body>
+</html>
